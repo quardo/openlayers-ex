@@ -6,6 +6,15 @@ export const environment = {
   production: false
 };
 
+export const mapConfig = {
+  featureProjection:'EPSG:3857',
+  dataProjection: 'EPSG:4326'
+}
+
+export const mapApiUrl = {
+  getGeoJson:'http://localhost:3000/GeoJson/'
+}
+
 /*
  * For easier debugging in development mode, you can import the following file
  * to ignore zone related error stack frames such as `zone.run`, `zoneDelegate.invokeTask`.

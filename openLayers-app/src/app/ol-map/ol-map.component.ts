@@ -1,12 +1,15 @@
-import {Component, EventEmitter, OnInit, Output} from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import Map from 'ol/Map';
 import View from 'ol/View';
 import VectorLayer from 'ol/layer/Vector';
+import {mapConfig} from '../../environments/environment';
 import {OSM, Vector as VectorSource} from 'ol/source';
 import TileLayer from 'ol/layer/Tile';
-import {defaults as defaultInteractions, DragRotateAndZoom, Draw} from 'ol/interaction';
+import {defaults as defaultInteractions, DragRotateAndZoom, Draw, Select} from 'ol/interaction';
 import {defaults as defaultControls, FullScreen} from 'ol/control';
-import GeometryType from "ol/geom/GeometryType";
+import {GeoJSON} from "ol/format";
+import {GetGeoJsonService} from "../get-geo-json.service";
+
 
 @Component({
   selector: 'app-ol-map',
@@ -15,23 +18,23 @@ import GeometryType from "ol/geom/GeometryType";
 })
 export class OlMapComponent implements OnInit {
    map: Map | undefined;
-   raster : TileLayer|undefined;
-   source : VectorSource | undefined;
-   vector : VectorLayer| undefined;
+   raster : TileLayer = new TileLayer();
+   source : VectorSource = new VectorSource();
+   vector : VectorLayer = new VectorLayer();
+   geoJson : GeoJSON = new GeoJSON();
+
 
   constructor() { }
 
-  ngOnInit(){
+  ngOnInit() : void{
     this.initMap();
-    // this.addInteraction();
   }
 
-  initMap(){
+   initMap() : void{
       this.raster = new TileLayer({
         source: new OSM(),
       });
-
-      this.source = new VectorSource({wrapX: false});
+    this.source = new VectorSource({wrapX: false});
 
       this.vector = new VectorLayer({
         source: this.source,
@@ -48,10 +51,39 @@ export class OlMapComponent implements OnInit {
       });
 
   }
+  async saveLayer(){
+    let feature = this.vector.getSource().getFeatures();
+    let newForm = new GeoJSON();
+    let featColl = newForm.writeFeaturesObject(feature);
+    let geoJson=(JSON.stringify(featColl));
+    await GetGeoJsonService.postGeoJson(geoJson);
 
-  receiveSelectedType($event:any){
-    let draw = new Draw({type:$event, source:this.source});
+  }
+
+  popInteractions() : void{
     this.map?.getInteractions().pop();
+  }
+  receiveSelectedType($event:any):void{
+    const draw = new Draw({type:$event, source:this.source});
+    this.popInteractions();
+    this.map?.addInteraction(draw);
+  }
+
+  receiveGeoJson($event:any): void{
+    console.log($event);
+    this.geoJson= $event;
+    const features= new GeoJSON().readFeatures(this.geoJson, {dataProjection: mapConfig.dataProjection
+      });
+    this.source?.addFeatures(features);
+  }
+
+  deleteFeature() : void{
+    this.popInteractions();
+    const draw = new Select();
+    draw.getFeatures().on('add', (feature) =>{
+      this.source.removeFeature(feature.element)
+      feature.target.remove(feature.element);
+    });
     this.map?.addInteraction(draw);
   }
 

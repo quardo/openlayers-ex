@@ -1,5 +1,10 @@
 <div class="row">
   <div class="map" id="map"></div>
 </div>
-<app-ol-interaction (sendTypeSelected)="receiveSelectedType($event)"></app-ol-interaction>
+<div class="row">
+  <app-ol-interaction (sendTypeSelected)="receiveSelectedType($event)"></app-ol-interaction>
+  <app-ol-add-feature (loadGeoJson)="receiveGeoJson($event)" (delFeature)="deleteFeature()" (saveLayer)="saveLayer()"></app-ol-add-feature>
+</div>
+
+
 

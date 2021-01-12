@@ -4,16 +4,15 @@ import { NgModule } from '@angular/core';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { OlMapComponent } from './ol-map/ol-map.component';
-import { CustomControlsComponent } from './custom-controls/custom-controls.component';
 import { OlInteractionComponent } from './ol-interaction/ol-interaction.component';
+import { OlAddFeatureComponent } from './ol-add-feature/ol-add-feature.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     OlMapComponent,
-    CustomControlsComponent,
-    OlInteractionComponent
-  ],
+    OlInteractionComponent,
+    OlAddFeatureComponent],
   imports: [
     BrowserModule,
     AppRoutingModule

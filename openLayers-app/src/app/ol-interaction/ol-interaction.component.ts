@@ -1,4 +1,4 @@
-import {Component, OnInit, Output, EventEmitter} from '@angular/core';
+import {Component, OnInit, Output, EventEmitter, ElementRef, ViewChild, AfterViewInit} from '@angular/core';
 import GeometryType from "ol/geom/GeometryType";
 
 @Component({
@@ -6,22 +6,24 @@ import GeometryType from "ol/geom/GeometryType";
   templateUrl: './ol-interaction.component.html',
   styleUrls: ['./ol-interaction.component.css']
 })
-export class OlInteractionComponent implements OnInit {
+export class OlInteractionComponent implements OnInit,AfterViewInit {
   @Output() sendTypeSelected = new EventEmitter<GeometryType>();
+  @ViewChild('GeometryType') typeSelect !: ElementRef;
+
   constructor() { }
 
   ngOnInit(): void {
+
+  }
+
+  ngAfterViewInit() : void{
     this.addInteraction();
   }
 
-  addInteraction(){
-    let typeSelect = (<HTMLOptionElement>document.getElementById('type'));
-    if(typeSelect.value!='None'){
-      let geometryType : GeometryType = GeometryType[typeSelect.value as keyof typeof GeometryType];
+  addInteraction() : void{
+      const geometryType : GeometryType = GeometryType[this.typeSelect.nativeElement.value as keyof typeof GeometryType];
       this.sendTypeSelected.emit(geometryType);
-    }
-
-    typeSelect.onchange = () =>{
+      this.typeSelect.nativeElement.onchange = () =>{
       this.addInteraction();
     };
   }
